@@ -28,19 +28,17 @@ class _AuthScreenState extends State<AuthScreen> {
         _isLoading = true;
       });
       if (isLogin) {
-        // Log user in
         authResult = await _auth.signInWithEmailAndPassword(
           email: email,
           password: password,
         );
       } else {
-        // Sign user up
         authResult = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
         await FirebaseFirestore.instance
-            .collection('user')
+            .collection('users')
             .doc(authResult.user.uid)
             .set({
           'username': username,
@@ -64,6 +62,18 @@ class _AuthScreenState extends State<AuthScreen> {
         _isLoading = false;
       });
     } catch (err) {
+      var message = 'An error occurred, pelase check your credentials!';
+
+      if (err.message != null) {
+        message = err.message;
+      }
+
+      ScaffoldMessenger.of(ctx).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Theme.of(ctx).errorColor,
+        ),
+      );
       print(err);
       setState(() {
         _isLoading = false;
